@@ -1,13 +1,10 @@
 
 package com.la_haus.domain.entity;
 
-import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 
 public class House extends Property {
     @Max(14)

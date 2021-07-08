@@ -8,5 +8,5 @@ import javax.validation.Validator;
 import java.io.IOException;
 
 public interface PropertyRepository {
-     String saveProperty(Property newProperty, JsonNode jsonMap, ObjectMapper mapper, Validator validator) throws IOException;
+     Property saveProperty(Property newProperty, JsonNode jsonMap, ObjectMapper mapper, Validator validator) throws IOException;
 }
