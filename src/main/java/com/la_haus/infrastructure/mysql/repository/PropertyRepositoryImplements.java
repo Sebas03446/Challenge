@@ -43,4 +43,5 @@ public class PropertyRepositoryImplements implements PropertyRepository {
         }
         throw new Error( "The Type of Property is incorrect, Try with HOUSE or APARTMENT");
     }
+
 }

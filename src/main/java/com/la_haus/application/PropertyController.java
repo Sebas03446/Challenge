@@ -14,9 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.*;
 import java.io.IOException;
@@ -32,9 +31,19 @@ public class PropertyController {
 
     @GetMapping("/property")
     @ResponseBody
-    public String hello(){
-        return "Hello -3";
+    public Iterable<Properties> hello(){
+        return propertyRepository.findAll();
     }
+
+    /*@PutMapping("/property/{id}")
+    @ResponseBody
+    public Properties property(@RequestBody Properties porperty, @PathVariable int id){
+        return propertyRepository.findById(id)
+                .map(properti -> {
+            properti.set
+
+        });
+    }*/
 
     @PostMapping("/property")
     @ResponseBody

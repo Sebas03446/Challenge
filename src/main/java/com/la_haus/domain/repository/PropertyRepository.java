@@ -1,6 +1,7 @@
 package com.la_haus.domain.repository;
 
 import com.la_haus.domain.entity.Property;
+import com.la_haus.infrastructure.mysql.mapper.Properties;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
