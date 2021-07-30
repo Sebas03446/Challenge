@@ -2,18 +2,16 @@ package com.la_haus.domain.entity;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-@Data
+@Embeddable
 public class Pricing {
-    /*Property p = new Property();
-
-    public Object getP() {
-        return p.getId();
-    }*/
+    @NonNull
     @Getter
     @Setter
     @Min(1000000)
@@ -22,9 +20,4 @@ public class Pricing {
     @Getter
     @Setter
     private int administrativeFee;
-
-    /*public Pricing(int salePrice, int administrativeFee) {
-        this.salePrice = salePrice;
-        this.administrativeFee = administrativeFee;
-    }*/
 }

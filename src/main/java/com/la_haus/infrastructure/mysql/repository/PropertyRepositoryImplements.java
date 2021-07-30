@@ -1,22 +1,16 @@
 package com.la_haus.infrastructure.mysql.repository;
 
 
-import com.la_haus.domain.entity.Apartment;
-import com.la_haus.domain.entity.House;
-import com.la_haus.domain.entity.Property;
+import com.la_haus.domain.entity.*;
 import com.la_haus.domain.repository.PropertyRepository;
-import com.la_haus.infrastructure.mysql.mapper.Properties;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.transaction.UserTransaction;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -42,6 +36,35 @@ public class PropertyRepositoryImplements implements PropertyRepository {
 
         }
         throw new Error( "The Type of Property is incorrect, Try with HOUSE or APARTMENT");
+    }
+    @Override
+    public Property returnProperty(Property result){
+        Location loc = new Location();
+        loc.setLatitude(result.getLocation().getLatitude());
+        loc.setLongitude(result.getLocation().getLongitude());
+        Pricing price = new Pricing();
+        price.setSalePrice(result.getPricing().getSalePrice());
+        price.setAdministrativeFee(result.getPricing().getAdministrativeFee());
+        Property properti = new Property();
+        properti.setTitle(result.getTitle());
+        properti.setDescription(result.getDescription());
+        properti.setLocation(loc);
+        properti.setPricing(price);
+        properti.setPropertyType(result.getPropertyType());
+        properti.setBedrooms(result.getBedrooms());
+        properti.setBathrooms(result.getBathrooms());
+        properti.setParkingSpots(result.getParkingSpots());
+        properti.setArea(result.getArea());
+        Set<String> photos = new HashSet();
+        for (String photo : result.getPhotos()) {
+            // Add each element into the set
+            photos.add(photo);
+        }
+        properti.setPhotos(photos);
+        properti.setCreatedAt(result.getCreatedAt());
+        properti.setUpdatedAt(result.getUpdatedAt());
+        properti.setStatus(result.getStatus());
+        return properti;
     }
 
 }

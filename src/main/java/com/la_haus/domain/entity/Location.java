@@ -4,17 +4,18 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Embeddable;
+import javax.validation.constraints.NotNull;
 
-@Data
+
+@Embeddable
 public class Location {
+    @NotNull
     @Setter
     @Getter
     private float latitude;
+    @NotNull
     @Setter
     @Getter
     private float longitude;
-    /*public Location(float latitud, float longitud) {
-        this.latitud = latitud;
-        this.longitud = longitud;
-    }*/
 }

@@ -1,18 +1,14 @@
 package com.la_haus.application;
 
-import com.la_haus.domain.entity.House;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.la_haus.domain.entity.Location;
+import com.la_haus.domain.entity.Pricing;
 import com.la_haus.domain.entity.Property;
-import com.la_haus.infrastructure.mysql.mapper.LocationEntity;
-import com.la_haus.infrastructure.mysql.mapper.Pricing;
-import com.la_haus.infrastructure.mysql.mapper.Properties;
 import com.la_haus.infrastructure.mysql.repository.PropertyRepository;
 import com.la_haus.infrastructure.mysql.repository.PropertyRepositoryImplements;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,20 +27,9 @@ public class PropertyController {
 
     @GetMapping("/property")
     @ResponseBody
-    public Iterable<Properties> hello(){
+    public Iterable<Property> hello(){
         return propertyRepository.findAll();
     }
-
-    /*@PutMapping("/property/{id}")
-    @ResponseBody
-    public Properties property(@RequestBody Properties porperty, @PathVariable int id){
-        return propertyRepository.findById(id)
-                .map(properti -> {
-            properti.set
-
-        });
-    }*/
-
     @PostMapping("/property")
     @ResponseBody
     String createProperty(HttpServletRequest request){
@@ -61,6 +46,7 @@ public class PropertyController {
             newProperty.setCreatedAt(currentDateTime.format(formatter));
             newProperty.setUpdatedAt(currentDateTime.format(formatter));
             Location newPropertyLocation = newProperty.getLocation();
+            System.out.println(newProperty.getParkingSpots());
             if(19.296134<= newPropertyLocation.getLatitude() && newPropertyLocation.getLatitude()<=19.661237 && -99.296741<= newPropertyLocation.getLongitude() && newPropertyLocation.getLongitude()<=-98.916339) {
                 newProperty.setStatus("ACTIVE");
             }else{
@@ -75,33 +61,10 @@ public class PropertyController {
             //get Property type for create and evaluate the select property
             PropertyRepositoryImplements validatePropertyType = new PropertyRepositoryImplements();
             try {
+                System.out.println("paso");
                 Property result = validatePropertyType.saveProperty(newProperty,jsonMap,mapper,validator);
-                LocationEntity loc = new LocationEntity();
-                loc.setLatitude(result.getLocation().getLatitude());
-                loc.setLongitude(result.getLocation().getLongitude());
-                Pricing price = new Pricing();
-                price.setSalePrice(result.getPricing().getSalePrice());
-                price.setAdministrativeFee(result.getPricing().getAdministrativeFee());
-                Properties properties = new Properties();
-                properties.setTitle(result.getTitle());
-                properties.setDescription(result.getDescription());
-                properties.setLocation(loc);
-                properties.setPricing(price);
-                properties.setPropertyType(result.getPropertyType());
-                properties.setBedrooms(result.getBedrooms());
-                properties.setBathrooms(result.getBathrooms());
-                properties.setParkingSpots(result.getParkingSpots());
-                properties.setArea(result.getArea());
-                Set<String> photos = new HashSet();
-                for (String photo : result.getPhotos()) {
-                    // Add each element into the set
-                    photos.add(photo);
-                }
-                properties.setPhotos(photos);
-                properties.setCreatedAt(result.getCreatedAt());
-                properties.setUpdatedAt(result.getUpdatedAt());
-                properties.setStatus(result.getStatus());
-                propertyRepository.save(properties);
+                Property property=validatePropertyType.returnProperty(result);
+                propertyRepository.save(property);
             }catch (Error err){
                 return err.getMessage();
             }
@@ -111,4 +74,58 @@ public class PropertyController {
         }
         return "Build";
     }
+    @PutMapping("/property/{id}")
+    @ResponseBody
+     String property(@RequestBody Property property, @PathVariable(value = "id") int id){
+        System.out.println(id);
+        return propertyRepository.findById(id)
+                .map(properti -> {
+                    Location loc = new Location();
+                    loc.setLatitude(property.getLocation().getLatitude());
+                    loc.setLongitude(property.getLocation().getLongitude());
+                    Pricing price = new Pricing();
+                    price.setSalePrice(property.getPricing().getSalePrice());
+                    price.setAdministrativeFee(property.getPricing().getAdministrativeFee());
+                    properti.setTitle(property.getTitle());
+                    properti.setDescription(property.getDescription());
+                    properti.setLocation(loc);
+                    properti.setPricing(price);
+                    properti.setPropertyType(property.getPropertyType());
+                    properti.setBedrooms(property.getBedrooms());
+                    properti.setBathrooms(property.getBathrooms());
+                    properti.setParkingSpots(property.getParkingSpots());
+                    properti.setArea(property.getArea());
+                    Set<String> photos = new HashSet();
+                    for (String photo : property.getPhotos()) {
+                        // Add each element into the set
+                        photos.add(photo);
+                    }
+                    LocalDateTime currentDateTime = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+                    properti.setPhotos(photos);
+                    properti.setUpdatedAt(currentDateTime.format(formatter));
+                    properti.setStatus(property.getStatus());
+                    propertyRepository.save(properti);
+                    return "Property was update!";
+                }).orElseGet(()->{
+                    property.setId(id);
+                    propertyRepository.save(property);
+                    return "The new property has been created";
+
+                });
+    }
+    @DeleteMapping("/property/{id}")
+    @ResponseBody
+    String deleteProperty(@PathVariable int id) {
+        try{
+            propertyRepository.deleteById(id);
+            return "The Property was delete!";
+        }catch (Error error){
+            return "The Property is'nt create! ";
+
+        }
+
+    }
+
+
 }
