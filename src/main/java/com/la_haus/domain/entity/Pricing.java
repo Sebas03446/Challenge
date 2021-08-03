@@ -6,12 +6,16 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import javax.persistence.Embeddable;
-import javax.persistence.Entity;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 @Embeddable
 public class Pricing {
-    @NonNull
+    /*public interface Country{
+
+    };
+    @Min(value = 50000000,groups = Country.class)
+    @Max(value = 350000000,groups = Country.class)*/
+
     @Getter
     @Setter
     @Min(1000000)

@@ -10,61 +10,46 @@ import org.springframework.stereotype.Service;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
 @Service
 public class PropertyRepositoryImplements implements PropertyRepository {
     @Override
-    public Property saveProperty(Property newProperty, JsonNode jsonMap, ObjectMapper mapper, Validator validator) throws IOException {
+    public Property saveProperty(Property newProperty, Validator validator) throws IOException {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        newProperty.setCreatedAt(currentDateTime.format(formatter));
+        newProperty.setUpdatedAt(currentDateTime.format(formatter));
+        Location newPropertyLocation = newProperty.getLocation();
+        if(19.296134<= newPropertyLocation.getLatitude() && newPropertyLocation.getLatitude()<=19.661237 && -99.296741<= newPropertyLocation.getLongitude() && newPropertyLocation.getLongitude()<=-98.916339) {
+            newProperty.setStatus("ACTIVE");
+        }else{
+            newProperty.setStatus("INACTIVE");
+        }
+        //validate
+        Set<ConstraintViolation<Property>> violations = validator.validate(newProperty);
+        if (!violations.isEmpty()){
+            throw new Error( "error " + violations + "The property was'nt create, state invalid.");
+        }
         if(newProperty.getPropertyType().equalsIgnoreCase("HOUSE")){
-            House newHouse = mapper.readValue(jsonMap, House.class);
-            newHouse.setStatus(newProperty.getStatus());
-            Set<ConstraintViolation<House>> violationsHouse = validator.validate(newHouse);
+            Set<ConstraintViolation<Property>> violationsHouse = validator.validate(newProperty, Property.House.class);
             if (!violationsHouse.isEmpty() ){
                 throw new Error("error " + " " + violationsHouse + " House was'nt create, state invalid");
             }
-            return newHouse;
+            return newProperty;
         }else if(newProperty.getPropertyType().equalsIgnoreCase("APARTMENT")){
-            Apartment newApartment = mapper.readValue(jsonMap, Apartment.class);
-            Set<ConstraintViolation<Apartment>> violationsApartment = validator.validate(newApartment);
-            newApartment.setStatus(newProperty.getStatus());
+            Set<ConstraintViolation<Property>> violationsApartment = validator.validate(newProperty, Property.Apartment.class);
             if (!violationsApartment.isEmpty() ){
                 throw new Error( "error" + "  " + violationsApartment + "Apartment was'nt create, state invalid");
             }
-            return newApartment;
+            return newProperty;
 
         }
         throw new Error( "The Type of Property is incorrect, Try with HOUSE or APARTMENT");
     }
-    @Override
-    public Property returnProperty(Property result){
-        Location loc = new Location();
-        loc.setLatitude(result.getLocation().getLatitude());
-        loc.setLongitude(result.getLocation().getLongitude());
-        Pricing price = new Pricing();
-        price.setSalePrice(result.getPricing().getSalePrice());
-        price.setAdministrativeFee(result.getPricing().getAdministrativeFee());
-        Property properti = new Property();
-        properti.setTitle(result.getTitle());
-        properti.setDescription(result.getDescription());
-        properti.setLocation(loc);
-        properti.setPricing(price);
-        properti.setPropertyType(result.getPropertyType());
-        properti.setBedrooms(result.getBedrooms());
-        properti.setBathrooms(result.getBathrooms());
-        properti.setParkingSpots(result.getParkingSpots());
-        properti.setArea(result.getArea());
-        Set<String> photos = new HashSet();
-        for (String photo : result.getPhotos()) {
-            // Add each element into the set
-            photos.add(photo);
-        }
-        properti.setPhotos(photos);
-        properti.setCreatedAt(result.getCreatedAt());
-        properti.setUpdatedAt(result.getUpdatedAt());
-        properti.setStatus(result.getStatus());
-        return properti;
-    }
+
 
 }
