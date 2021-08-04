@@ -24,6 +24,6 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Favorites> favorites;
+    @ElementCollection
+    private Set<Integer> favorites;
 }

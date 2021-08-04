@@ -1,14 +1,11 @@
 package com.la_haus.application;
 
-import com.la_haus.domain.entity.Favorites;
 import com.la_haus.domain.entity.Property;
 import com.la_haus.domain.entity.User;
 import com.la_haus.infrastructure.mysql.repository.PropertyRepository;
 import com.la_haus.infrastructure.mysql.repository.UserRepository;
-import org.codehaus.jackson.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,10 +47,8 @@ public class UserController {
         Boolean existProperty = propertyRepository.findById(propertyId.get("propertyId")).isEmpty();
         if(!existProperty){
              return userRepository.findByEmail(me).map(user -> {
-                    Set<Favorites> fav = user.getFavorites();
-                    Favorites favorites1= new Favorites();
-                    favorites1.setFavorite(propertyId.get("propertyId"));
-                    fav.add(favorites1);
+                    Set<Integer> fav = user.getFavorites();
+                    fav.add(propertyId.get("propertyId"));
                     user.setFavorites(fav);
                     userRepository.save(user);
                     return "Succesfull";
@@ -71,12 +66,8 @@ public class UserController {
     Map<String,Object> getFavorites(@PathVariable String me){
         User user = userRepository.findByEmail(me).get();
         Pageable pagination = PageRequest.of(0, 1);
-        Set<Favorites> propertyFavorites = user.getFavorites();
-        Set<Integer> iterableProperty=new HashSet<>();
-        for (Favorites idProperty:propertyFavorites) {
-            iterableProperty.add(idProperty.getFavorite());
-        }
-        List<Property> listProperty=propertyRepository.findAllById(iterableProperty);
+        Set<Integer> propertyFavorites = user.getFavorites();
+        List<Property> listProperty=propertyRepository.findAllById(propertyFavorites);
         PageImpl<Property> data=new PageImpl<Property>(listProperty);
         LinkedHashMap<String, Object> response = new LinkedHashMap<>();
         response.put("page", pagination.getPageNumber());
