@@ -1,0 +1,90 @@
+package com.la_haus.application;
+
+import com.la_haus.domain.entity.Favorites;
+import com.la_haus.domain.entity.Property;
+import com.la_haus.domain.entity.User;
+import com.la_haus.infrastructure.mysql.repository.PropertyRepository;
+import com.la_haus.infrastructure.mysql.repository.UserRepository;
+import org.codehaus.jackson.JsonNode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@Controller
+public class UserController {
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PropertyRepository propertyRepository;
+    @PostMapping("v1/users/")
+    @ResponseBody
+    User createUser(@RequestBody User newUser){
+        newUser.setPassword(newUser.getEmail());
+        return userRepository.save(newUser);
+    }
+    @PostMapping("v1/users/login")
+    @ResponseBody
+    String login(@RequestBody User user){
+        String status = "ACCES DENIED \n";
+        User userVerify=userRepository.findByEmail(user.getEmail())
+                .orElseGet(()->{
+                    //throw new Error("The user "+ newUser.getEmail()+" not exist " );
+                    User userRespond = new User();
+                    userRespond.setEmail("Verify the user or password");
+                    userRespond.setPassword("error");
+                    return userRespond;
+                });
+        if(userVerify.getPassword().equals(user.getPassword())){
+            status = "ACCES CONFIRMED \n";
+            return status + userVerify.getEmail();
+        }
+        return status + user.getEmail();
+    }
+    @PostMapping("v1/users/{me}/favorites")
+    @ResponseBody
+    String addFavorite(@RequestBody Map<String,Integer> propertyId, @PathVariable String me){
+        Boolean existProperty = propertyRepository.findById(propertyId.get("propertyId")).isEmpty();
+        if(!existProperty){
+             return userRepository.findByEmail(me).map(user -> {
+                    Set<Favorites> fav = user.getFavorites();
+                    Favorites favorites1= new Favorites();
+                    favorites1.setFavorite(propertyId.get("propertyId"));
+                    fav.add(favorites1);
+                    user.setFavorites(fav);
+                    userRepository.save(user);
+                    return "Succesfull";
+                }).orElseGet(()->{
+                    User userRespond = new User();
+                    userRespond.setEmail("Verify the user or password");
+                    userRespond.setPassword("error");
+                    return "error with the user";
+                    });
+        }
+        return "Property does'nt exist!";
+    }
+    @GetMapping("v1/users/{me}/favorites")
+    @ResponseBody
+    Map<String,Object> getFavorites(@PathVariable String me){
+        User user = userRepository.findByEmail(me).get();
+        Pageable pagination = PageRequest.of(0, 1);
+        Set<Favorites> propertyFavorites = user.getFavorites();
+        Set<Integer> iterableProperty=new HashSet<>();
+        for (Favorites idProperty:propertyFavorites) {
+            iterableProperty.add(idProperty.getFavorite());
+        }
+        List<Property> listProperty=propertyRepository.findAllById(iterableProperty);
+        PageImpl<Property> data=new PageImpl<Property>(listProperty);
+        LinkedHashMap<String, Object> response = new LinkedHashMap<>();
+        response.put("page", pagination.getPageNumber());
+        response.put("pageSize", pagination.getPageSize());
+        response.put("total", data.getTotalElements());
+        response.put("totalPages", data.getTotalPages());
+        response.put("data", data.getContent());
+
+        return  response;
+    }
+}

@@ -5,18 +5,11 @@ import com.la_haus.domain.entity.Pricing;
 import com.la_haus.domain.entity.Property;
 import com.la_haus.infrastructure.mysql.repository.PropertyRepository;
 import com.la_haus.infrastructure.mysql.repository.PropertyRepositoryImplements;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.io.IOException;
@@ -30,19 +23,17 @@ public class PropertyController {
     private PropertyRepository propertyRepository;
     @PostMapping("/property")
     @ResponseBody
-    String createProperty(HttpServletRequest request){
-        ObjectMapper mapper = new ObjectMapper();
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
+    String createProperty(@RequestBody Property newProperty){
         try {
-            // Recieve request.InputStream, mapping to Json, create Property
-            JsonNode jsonMap = mapper.readTree(request.getInputStream());
-            Property newProperty = mapper.readValue(jsonMap, Property.class);
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+            newProperty.setCreatedAt(currentDateTime.format(formatter));
+            newProperty.setUpdatedAt(currentDateTime.format(formatter));
             PropertyRepositoryImplements validatePropertyType = new PropertyRepositoryImplements();
             try {
                 //Validate and return the property
                 System.out.println("paso");
-                Property result = validatePropertyType.saveProperty(newProperty,validator);
+                Property result = validatePropertyType.saveProperty(newProperty);
                 propertyRepository.save(result);
             }catch (Error err){
                 return err.getMessage();
@@ -51,13 +42,12 @@ public class PropertyController {
         }catch (IOException ex){
             System.out.println(ex.fillInStackTrace());
         }
-        return "Build";
+        return "error";
     }
     @PutMapping("/property/{id}")
     @ResponseBody
      String property(@RequestBody Property property, @PathVariable(value = "id") int id){
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
+        PropertyRepositoryImplements validatePropertyType = new PropertyRepositoryImplements();
         return propertyRepository.findById(id)
                 .map(properti -> {
                     Location loc = new Location();
@@ -85,16 +75,19 @@ public class PropertyController {
                     properti.setPhotos(photos);
                     properti.setUpdatedAt(currentDateTime.format(formatter));
                     properti.setStatus(property.getStatus());
-                    Set<ConstraintViolation<Property>> violations = validator.validate(properti);
-                    if (!violations.isEmpty()){
-                        return "error " + violations;
+                    try {
+                        //Validate and return the property
+                        System.out.println("paso");
+                        Property result = validatePropertyType.saveProperty(properti);
+                        propertyRepository.save(result);
+                    }catch (IOException error){
+                        return error.getMessage();
+                    }catch (Error err){
+                        return err.getMessage();
                     }
-                    propertyRepository.save(properti);
                     return "Property was update!";
                 }).orElseGet(()->{
-                    property.setId(id);
-                    propertyRepository.save(property);
-                    return "The new property has been created";
+                    return "The property does'nt exist";
 
                 });
     }
@@ -112,16 +105,49 @@ public class PropertyController {
     }
     @GetMapping("/property")
     @ResponseBody
-     Map<String, Object> getProperties(@RequestParam(name = "status", defaultValue = "ALL", required = false) String status, @RequestParam(name = "bbox", required = false) List<Double> bbox,
+     Map<String, Object> getProperties(@RequestParam(name = "status", defaultValue ="ALL" ,required = false) String status, @RequestParam(name = "bbox", required = false) List<Double> bbox,
                                              @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-                                             @RequestParam(name = "pageSize", defaultValue = "10", required = false) @Min(value = 10) @Max(value = 20) int pageSize) {
+                                       @RequestParam(name = "pageSize", defaultValue = "10", required = false) @Min(value = 10) @Max(value = 20) int pageSize) {
+
+        //Coparator with format bbox={minLongitude},{minLatitude},{maxLongitude},{maxLatitude} for example bbox=-99.296741,19.296134,-98.916339,19.661237
+        Comparator<Property> comparator= (property, property2) -> {
+            int compareQuantity=0;
+            Location newPropertyLocation=property.getLocation();
+            if(bbox.get(1)<= newPropertyLocation.getLatitude() && newPropertyLocation.getLatitude()<=bbox.get(3) && bbox.get(0)<= newPropertyLocation.getLongitude() && newPropertyLocation.getLongitude()<=bbox.get(2)) {
+                compareQuantity=1;
+            }
+            int compareTwo=0;
+            Location newPropertyLocation2=property2.getLocation();
+            if(bbox.get(1)<= newPropertyLocation2.getLatitude() && newPropertyLocation2.getLatitude()<=bbox.get(3) && bbox.get(0)<= newPropertyLocation2.getLongitude() && newPropertyLocation2.getLongitude()<=bbox.get(2)) {
+                compareTwo=1;
+            }
+            //Decending order, for change the order return compareQuantity-compareTwo
+            return compareTwo - compareQuantity ;
+            };
+        Comparator<Property> comparator2= (property, property2) -> {
+            //Decending order for upadte
+            return property2.getUpdatedAt().compareTo(property.getUpdatedAt()) ;
+        };
+        Comparator<Property> comparator3= (property, property2) -> {
+            //Decending order for Create
+            return property2.getCreatedAt().compareTo(property.getCreatedAt()) ;
+        };
+        List<Property> listProperty = propertyRepository.findAll();
+
+        //Call comparator and sort the list
+        Collections.sort(listProperty,comparator3);
+        Collections.sort(listProperty,comparator2);
+        if(bbox!=null){
+            Collections.sort(listProperty,comparator);
+        }
 
 
-        Pageable pagination = PageRequest.of(page, pageSize, Sort.by("updatedAt").descending().and(Sort.by("createdAt").descending()));
 
-        Page<Property> data = propertyRepository.findAll(pagination);;
-
-        Map<String, Object> response = new HashMap<>();
+        Pageable pagination = PageRequest.of(page, pageSize);
+        //Page<Property> data = propertyRepository.findAllByStatus(status,pagination);
+        PageImpl<Property> data=new PageImpl<Property>(listProperty);
+        //Page<Property> data = propertyRepository.findAllByPricing(pagination);
+        LinkedHashMap<String, Object> response = new LinkedHashMap<>();
         response.put("page", pagination.getPageNumber());
         response.put("pageSize", pagination.getPageSize());
         response.put("total", data.getTotalElements());

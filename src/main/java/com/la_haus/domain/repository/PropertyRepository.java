@@ -8,6 +8,6 @@ import javax.validation.Validator;
 import java.io.IOException;
 
 public interface PropertyRepository {
-     Property saveProperty(Property newProperty, Validator validator) throws IOException;
+     Property saveProperty(Property newProperty) throws IOException;
 
 }

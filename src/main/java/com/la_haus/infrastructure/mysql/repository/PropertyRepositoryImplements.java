@@ -8,7 +8,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,15 +20,21 @@ import java.util.Set;
 @Service
 public class PropertyRepositoryImplements implements PropertyRepository {
     @Override
-    public Property saveProperty(Property newProperty, Validator validator) throws IOException {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-        newProperty.setCreatedAt(currentDateTime.format(formatter));
-        newProperty.setUpdatedAt(currentDateTime.format(formatter));
+    public Property saveProperty(Property newProperty) throws IOException {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
         Location newPropertyLocation = newProperty.getLocation();
         if(19.296134<= newPropertyLocation.getLatitude() && newPropertyLocation.getLatitude()<=19.661237 && -99.296741<= newPropertyLocation.getLongitude() && newPropertyLocation.getLongitude()<=-98.916339) {
+            Set<ConstraintViolation<Pricing>> violations = validator.validate(newProperty.getPricing(), Pricing.Mexico.class);
+            if (!violations.isEmpty()){
+                throw new Error( "error " + violations + "The property was'nt create, state invalid.");
+            }
             newProperty.setStatus("ACTIVE");
         }else{
+            Set<ConstraintViolation<Pricing>> violations = validator.validate(newProperty.getPricing(), Pricing.Colombia.class);
+            if (!violations.isEmpty()){
+                throw new Error( "error " + violations + "The property was'nt create, state invalid.");
+            }
             newProperty.setStatus("INACTIVE");
         }
         //validate

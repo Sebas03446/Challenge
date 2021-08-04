@@ -3,6 +3,7 @@ package com.la_haus.domain.entity;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.domain.Sort;
 
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotBlank;

@@ -8,13 +8,12 @@ import java.util.Set;
 
 @Entity
 public class Property {
-    public interface House{
+  public interface House{
 
     };
     public interface Apartment{
 
     };
-   //@Max(value = 10,groups = HouseI.class)
    @Id
    @GeneratedValue(strategy = GenerationType.AUTO)
    @Getter
@@ -87,4 +86,5 @@ public class Property {
   @Getter
   @Setter
   private String status;
+
 }
