@@ -132,7 +132,12 @@ public class PropertyController {
             //Decending order for Create
             return property2.getCreatedAt().compareTo(property.getCreatedAt()) ;
         };
-        List<Property> listProperty = propertyRepository.findAll();
+        List<Property> listProperty= Collections.emptyList();
+        if(status.equals("ALL")){
+            listProperty = propertyRepository.findAll();
+        }else{
+            listProperty = propertyRepository.findAllByStatus(status);
+        }
 
         //Call comparator and sort the list
         Collections.sort(listProperty,comparator3);

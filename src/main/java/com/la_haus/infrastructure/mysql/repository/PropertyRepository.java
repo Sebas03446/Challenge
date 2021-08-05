@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface PropertyRepository extends JpaRepository<Property, Integer> {
-    Page<Property> findAllByStatus(String status, Pageable pageable);
+    List<Property> findAllByStatus(String status);
 
 }
