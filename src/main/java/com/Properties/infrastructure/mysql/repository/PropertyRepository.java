@@ -1,11 +1,8 @@
-package com.la_haus.infrastructure.mysql.repository;
+package com.Properties.infrastructure.mysql.repository;
 
 
-import com.la_haus.domain.entity.Property;
-import org.springframework.data.domain.Page;
+import com.Properties.domain.entity.Property;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 

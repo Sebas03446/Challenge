@@ -1,4 +1,4 @@
-package com.la_haus.domain.entity;
+package com.Properties.domain.entity;
 
 import lombok.Getter;
 import lombok.Setter;

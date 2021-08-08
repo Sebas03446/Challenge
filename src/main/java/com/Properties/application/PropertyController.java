@@ -1,10 +1,10 @@
-package com.la_haus.application;
+package com.Properties.application;
 
-import com.la_haus.domain.entity.Location;
-import com.la_haus.domain.entity.Pricing;
-import com.la_haus.domain.entity.Property;
-import com.la_haus.infrastructure.mysql.repository.PropertyRepository;
-import com.la_haus.infrastructure.mysql.repository.PropertyRepositoryImplements;
+import com.Properties.domain.entity.Location;
+import com.Properties.domain.entity.Pricing;
+import com.Properties.domain.entity.Property;
+import com.Properties.infrastructure.mysql.repository.PropertyRepository;
+import com.Properties.infrastructure.mysql.repository.PropertyRepositoryImplements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;

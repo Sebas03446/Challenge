@@ -1,10 +1,8 @@
-package com.la_haus.infrastructure.mysql.repository;
+package com.Properties.infrastructure.mysql.repository;
 
 
-import com.la_haus.domain.entity.*;
-import com.la_haus.domain.repository.PropertyRepository;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.Properties.domain.entity.*;
+import com.Properties.domain.repository.PropertyRepository;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolation;
@@ -12,9 +10,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.Set;
 
 @Service

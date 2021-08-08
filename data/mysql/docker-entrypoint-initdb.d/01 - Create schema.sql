@@ -1,1 +1,1 @@
-CREATE SCHEMA `la_haus`;
+CREATE SCHEMA `Properties_Schema`;

@@ -1,13 +1,11 @@
-import com.la_haus.application.PropertyController;
-import com.la_haus.domain.entity.Location;
-import com.la_haus.domain.entity.Pricing;
-import com.la_haus.domain.entity.Property;
-import org.junit.jupiter.api.Assertions.*;
+import com.Properties.domain.entity.Location;
+import com.Properties.domain.entity.Pricing;
+import com.Properties.domain.entity.Property;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LaHausTest {
+public class PropertiesTest {
     @Test
     void givenProperty_WhenCreatePropertyIsCalled_thenSavedIsReturned(){
         Property propertyTest = new Property();
