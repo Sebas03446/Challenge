@@ -1,6 +1,8 @@
 package com.Properties.domain.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -10,6 +12,8 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class User {
     @Id
@@ -22,6 +26,7 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
+    private String username;
     @ElementCollection
     private Set<Integer> favorites;
 }

@@ -21,6 +21,11 @@ import java.util.*;
 public class PropertyController {
     @Autowired
     private PropertyRepository propertyRepository;
+    @GetMapping("/")
+    @ResponseBody
+    String welcome(){
+        return "Hola";
+    }
     @PostMapping("/property")
     @ResponseBody
     String createProperty(@RequestBody Property newProperty){

@@ -1,11 +1,15 @@
 package com.Properties.application;
 
+import com.Properties.domain.entity.AuthRequest;
 import com.Properties.domain.entity.Property;
 import com.Properties.domain.entity.User;
 import com.Properties.infrastructure.mysql.repository.PropertyRepository;
 import com.Properties.infrastructure.mysql.repository.UserRepository;
+import com.Properties.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +21,24 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired
     private PropertyRepository propertyRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @PostMapping("/authenticate")
+    @ResponseBody
+    public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
+        try{
+           authenticationManager.authenticate(
+                   new UsernamePasswordAuthenticationToken(authRequest.getUsername(),authRequest.getPassword())
+           );
+        }catch (Exception ex){
+                throw  new Exception("invalid username" + ex);
+        }
+        return jwtUtil.generateToken(authRequest.getUsername());
+
+    }
     @PostMapping("v1/users/")
     @ResponseBody
     User createUser(@RequestBody User newUser){
