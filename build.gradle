@@ -28,9 +28,6 @@ dependencies {
 
 version = '0.1.0'
 
-application {
-    mainClass = 'com.la_haus.LaHausApp'
-}
 
 test {
     useJUnitPlatform()
