@@ -7,6 +7,7 @@ import com.Properties.infrastructure.mysql.repository.PropertyRepository;
 import com.Properties.infrastructure.mysql.repository.PropertyRepositoryImplements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,9 +114,11 @@ public class PropertyController {
      Map<String, Object> getProperties(@RequestParam(name = "status", defaultValue ="ALL" ,required = false) String status, @RequestParam(name = "bbox", required = false) List<Double> bbox,
                                              @RequestParam(name = "page", defaultValue = "0", required = false) int page,
                                        @RequestParam(name = "pageSize", defaultValue = "10", required = false) @Min(value = 10) @Max(value = 20) int pageSize) {
-
+        if(bbox.size()!=4){
+            bbox=null;
+        }
         //Coparator with format bbox={minLongitude},{minLatitude},{maxLongitude},{maxLatitude} for example bbox=-99.296741,19.296134,-98.916339,19.661237
-        Comparator<Property> comparator= (property, property2) -> {
+        /*Comparator<Property> comparator= (property, property2) -> {
             int compareQuantity=0;
             Location newPropertyLocation=property.getLocation();
             if(bbox.get(1)<= newPropertyLocation.getLatitude() && newPropertyLocation.getLatitude()<=bbox.get(3) && bbox.get(0)<= newPropertyLocation.getLongitude() && newPropertyLocation.getLongitude()<=bbox.get(2)) {
@@ -128,7 +131,7 @@ public class PropertyController {
             }
             //Decending order, for change the order return compareQuantity-compareTwo
             return compareTwo - compareQuantity ;
-            };
+            };*/
         Comparator<Property> comparator2= (property, property2) -> {
             //Decending order for upadte
             return property2.getUpdatedAt().compareTo(property.getUpdatedAt()) ;
@@ -138,18 +141,20 @@ public class PropertyController {
             return property2.getCreatedAt().compareTo(property.getCreatedAt()) ;
         };
         List<Property> listProperty= Collections.emptyList();
-        if(status.equals("ALL")){
-            listProperty = propertyRepository.findAll();
-        }else{
+        if(status.equals("ALL") && bbox!=null ){
+            listProperty = propertyRepository.findAllPropertiesBBOX(bbox.get(0),bbox.get(1),bbox.get(2), bbox.get(3));
+        }else if(status.equals("ALL")){
+            listProperty=propertyRepository.findAll();
+        }else if(bbox!=null){
+            listProperty=propertyRepository.findAllPropertiesByStatusAndBBOX(bbox.get(0),bbox.get(1),bbox.get(2), bbox.get(3),status);
+        }else {
             listProperty = propertyRepository.findAllByStatus(status);
         }
 
         //Call comparator and sort the list
         Collections.sort(listProperty,comparator3);
         Collections.sort(listProperty,comparator2);
-        if(bbox!=null){
-            Collections.sort(listProperty,comparator);
-        }
+        List<Property> listPropertyResult= Collections.emptyList();
 
 
 

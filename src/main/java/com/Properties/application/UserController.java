@@ -26,42 +26,30 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @PostMapping("/authenticate")
+    @PostMapping("/v1/users/login")
     @ResponseBody
     public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
         try{
+            System.out.println(authRequest.getEmail());
            authenticationManager.authenticate(
-                   new UsernamePasswordAuthenticationToken(authRequest.getUsername(),authRequest.getPassword())
+                   new UsernamePasswordAuthenticationToken(authRequest.getEmail(),authRequest.getPassword())
            );
         }catch (Exception ex){
                 throw  new Exception("invalid username" + ex);
         }
-        return jwtUtil.generateToken(authRequest.getUsername());
+        return jwtUtil.generateToken(authRequest.getEmail());
 
     }
     @PostMapping("v1/users/")
     @ResponseBody
     User createUser(@RequestBody User newUser){
         newUser.setPassword(newUser.getEmail());
-        return userRepository.save(newUser);
-    }
-    @PostMapping("v1/users/login")
-    @ResponseBody
-    String login(@RequestBody User user){
-        String status = "ACCES DENIED \n";
-        User userVerify=userRepository.findByEmail(user.getEmail())
-                .orElseGet(()->{
-                    //throw new Error("The user "+ newUser.getEmail()+" not exist " );
-                    User userRespond = new User();
-                    userRespond.setEmail("Verify the user or password");
-                    userRespond.setPassword("error");
-                    return userRespond;
-                });
-        if(userVerify.getPassword().equals(user.getPassword())){
-            status = "ACCES CONFIRMED \n";
-            return status + userVerify.getEmail();
+        if(userRepository.findByEmail(newUser.getEmail()).isEmpty()){
+            return userRepository.save(newUser);
+        }else{
+            throw (new Error("The email already exist!"));
         }
-        return status + user.getEmail();
+
     }
     @PostMapping("v1/users/{me}/favorites")
     @ResponseBody

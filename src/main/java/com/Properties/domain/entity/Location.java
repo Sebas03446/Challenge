@@ -14,10 +14,10 @@ public class Location {
     @NotBlank
     @Setter
     @Getter
-    private float latitude;
+    private double latitude;
     @NotNull
     @NotBlank
     @Setter
     @Getter
-    private float longitude;
+    private double longitude;
 }
