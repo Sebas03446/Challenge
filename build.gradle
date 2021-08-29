@@ -40,7 +40,7 @@ tasks.named('wrapper') {
 task fooExec(type: Exec){
     commandLine './gradlew', 'build'
     workingDir('./build/libs/')
-    commandLine 'java', '-jar', 'LaHaus-0.1.0.jar'
+    commandLine 'java', '-jar', 'Challenge-0.1.0.jar'
     doLast {
         println "Executed!"
     }
