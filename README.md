@@ -7,11 +7,10 @@
 ## Installation
 
 
-Install the dependencies and devDependencies and start the server.
+If the IDE don't run for default, build gradle, use the next command.
 
 ```sh
-cd Catan2-master
-npm i
+./gradlew build
 ```
 
     ## Docker
@@ -20,13 +19,13 @@ npm i
 docker-compose up
 ```
 ```sh
- npm start
+ Use the IDE for run the PropertyApp in src/main/java/com/Properties/PropertyApp or use the next commands:
 ```
-
-
 ```sh
-127.0.0.1:3000
+cd build/libs
+java -jar Challenge-0.1.0.jar
 ```
+
 
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
