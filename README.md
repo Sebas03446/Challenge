@@ -7,7 +7,7 @@
 ## Installation
 
 
-If the IDE don't run for default, build gradle, use the next command.
+If the IDE don't run for default build gradle, use the next command.
 
 ```sh
 ./gradlew build
